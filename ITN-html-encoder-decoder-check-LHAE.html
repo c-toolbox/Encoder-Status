@@ -1,0 +1,394 @@
+<html>
+  <head>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+      }
+      th {
+        text-align: left;
+      }
+    </style>
+  <title>DisplayPort Status for ITN ENA-340 Encoders</title>
+</head>
+
+<script type="text/javascript">
+  function readTextFile(file, dateelement) {
+    var rawtext;
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function () {
+      if (rawFile.readyState === 4) {
+        if (rawFile.status === 200 || rawFile.status == 0) {
+          rawtext = rawFile.responseText;
+        }
+      }
+    }
+    rawFile.send(null);
+    dateelement.innerHTML = rawFile.getResponseHeader('Last-Modified');
+    return rawtext; 
+  }
+
+  function createTables() {
+    var sources = [
+      {'name':'Master-A (BRAVO-0)',   'id':'S1',  'device':'2530145694',   'unit':'51'},
+      {'name':'SL-A1ch1 (BRAVO-1 L)',   'id':'S2',  'device':'2530146698',   'unit':'53'},
+      {'name':'SL-A1ch2 (BRAVO-1 R)',   'id':'S3',  'device':'2530146695',   'unit':'55'},
+      {'name':'SL-A2ch1 (BRAVO-2 L)',   'id':'S4',  'device':'2530145689',   'unit':'57'},
+      {'name':'SL-A2ch2 (BRAVO-2 R)',   'id':'S5',  'device':'2530146697',   'unit':'59'},
+      {'name':'SL-A3ch1 (BRAVO-3 L)',   'id':'S6',  'device':'2530145687',   'unit':'61'},
+      {'name':'SL-A3ch2 (BRAVO-3 R)',   'id':'S7',  'device':'2530145686',   'unit':'63'},
+      {'name':'SL-A4ch1 (BRAVO-4 L)',   'id':'S8',  'device':'2530146701',   'unit':'65'},
+      {'name':'SL-A4ch2 (BRAVO-4 R)',   'id':'S9',  'device':'2530146693',   'unit':'67'},
+      {'name':'SL-A5ch1 (BRAVO-5 L)',   'id':'S10', 'device':'2530145685',   'unit':'69'},
+      {'name':'SL-A5ch2 (BRAVO-5 R)',   'id':'S11', 'device':'2530145695',   'unit':'71'},
+      {'name':'SL-A6ch1 (BRAVO-6 L)',   'id':'S12', 'device':'2530145693',   'unit':'73'},
+      {'name':'SL-A6ch2 (BRAVO-6 R)',   'id':'S13', 'device':'2530146691',   'unit':'75'},
+      {'name':'Master-B (WATCH-M)',   'id':'S14', 'device':'2530146692',   'unit':'77'},
+      {'name':'SL-B1ch1 (WATCH-L-1)',   'id':'S15', 'device':'2530145690',   'unit':'79'},
+      {'name':'SL-B1ch2 (WATCH-R-1)',   'id':'S16', 'device':'2530145683',   'unit':'81'},
+      {'name':'SL-B2ch1 (WATCH-L-2)',   'id':'S17', 'device':'2530146700',   'unit':'83'},
+      {'name':'SL-B2ch2 (WATCH-R-2)',   'id':'S18', 'device':'2530145691',   'unit':'85'},
+      {'name':'SL-B3ch1 (WATCH-L-3)',   'id':'S19', 'device':'2530145692',   'unit':'87'},
+      {'name':'SL-B3ch2 (WATCH-R-3)',   'id':'S20', 'device':'2530135792',   'unit':'89'},
+      {'name':'SL-B4ch1 (WATCH-L-4)',   'id':'S21', 'device':'2530146696',   'unit':'91'},
+      {'name':'SL-B4ch2 (WATCH-R-4)',   'id':'S22', 'device':'2530146694',   'unit':'93'},
+      {'name':'SL-B5ch1 (WATCH-L-5)',   'id':'S23', 'device':'2530145688',   'unit':'95'},
+      {'name':'SL-B5ch2 (WATCH-R-5)',   'id':'S24', 'device':'2530145684',   'unit':'97'},
+      {'name':'SL-B6ch1 (WATCH-L-6)',   'id':'S25', 'device':'2530146699',   'unit':'99'},
+      {'name':'SL-B6ch2 (WATCH-R-6)',   'id':'S26', 'device':'2530145682',   'unit':'101'},
+      {'name':'Master-C (FISHY)',   'id':'S27', 'device':'2530135793',   'unit':'103'},
+      {'name':'SL-C1ch1 (SUSHI-1)',  'id':'S28',  'device':'2530149945',   'unit':'105'},
+      {'name':'SL-C1ch2 (BLENDPC)',  'id':'S29',  'device':'2530149941',   'unit':'107'},
+      {'name':'SL-C2ch1 (SUSHI-2)',  'id':'S30',  'device':'2530149937',   'unit':'109'},
+      {'name':'SL-C2ch2 (FREE)',  'id':'S31', 'device':'2530149938',   'unit':'111'},
+      {'name':'SL-C3ch1 (SUSHI-3)',  'id':'S32',  'device':'2530147662',   'unit':'113'},
+      {'name':'SL-C3ch2 (FREE)',  'id':'S33', 'device':'2530147665',   'unit':'115'},
+      {'name':'SL-C4ch1 (SUSHI-4)',  'id':'S34',  'device':'2530149932',   'unit':'117'},
+      {'name':'SL-C4ch2 (FREE)',  'id':'S35', 'device':'2530149936',   'unit':'119'},
+      {'name':'SL-C5ch1 (SUSHI-5)',  'id':'S36',  'device':'2530147661',   'unit':'121'},
+      {'name':'SL-C5ch2 (FREE)',  'id':'S37', 'device':'2530149944',   'unit':'123'},
+      {'name':'SL-C6ch1 (SUSHI-6)',  'id':'S38',  'device':'2530149934',   'unit':'125'},
+      {'name':'SL-C6ch2 (FREE)',  'id':'S39', 'device':'2530149942',   'unit':'127'},
+      {'name':'Master-D (ALPHA-M)',   'id':'S40', 'device':'2530135793',   'unit':'129'},
+      {'name':'SL-D1ch1 (ALPHA-1)',  'id':'S41',  'device':'',   'unit':'131'},
+      {'name':'SL-D1ch2 (ALPHA-1)',  'id':'S42',  'device':'',   'unit':'133'},
+      {'name':'SL-D2ch1 (ALPHA-2)',  'id':'S43',  'device':'',   'unit':'135'},
+      {'name':'SL-D2ch2 (ALPHA-2)',  'id':'S44',  'device':'',   'unit':'137'},
+      {'name':'SL-D3ch1 (ALPHA-3)',  'id':'S45',  'device':'',   'unit':'139'},
+      {'name':'SL-D3ch2 (ALPHA-3)',  'id':'S46',  'device':'',   'unit':'141'},
+      {'name':'SL-D4ch1 (ALPHA-4)',  'id':'S47',  'device':'',   'unit':'143'},
+      {'name':'SL-D4ch2 (ALPHA-4)',  'id':'S48',  'device':'',   'unit':'145'},
+      {'name':'SL-D5ch1 (ALPHA-5)',  'id':'S49',  'device':'',   'unit':'147'},
+      {'name':'SL-D5ch2 (ALPHA-5)',  'id':'S50',  'device':'',   'unit':'149'},
+      {'name':'SL-D6ch1 (ALPHA-6)',  'id':'S51',  'device':'',   'unit':'151'},
+      {'name':'SL-D6ch2 (ALPHA-6)',  'id':'S52',  'device':'',   'unit':'153'},
+    
+    ];
+    
+    var destinations = [      
+      {'name':'Proj1-ch1',    'id':'D1',  'unit':'181'},
+      {'name':'Proj1-ch2',    'id':'D2',  'unit':'183'},
+      {'name':'Proj2-ch1',    'id':'D3',  'unit':'185'},
+      {'name':'Proj2-ch2',    'id':'D4',  'unit':'187'},
+      {'name':'Proj3-ch1',    'id':'D5',  'unit':'189'},
+      {'name':'Proj3-ch2',    'id':'D6',  'unit':'191'},
+      {'name':'Proj4-ch1',    'id':'D7',  'unit':'193'},
+      {'name':'Proj4-ch2',    'id':'D8',  'unit':'195'},
+      {'name':'Proj5-ch1',    'id':'D9',  'unit':'197'},
+      {'name':'Proj5-ch2',    'id':'D10',   'unit':'199'},
+      {'name':'Proj6-ch1',    'id':'D11',   'unit':'201'},
+      {'name':'Proj6-ch2',    'id':'D12',   'unit':'203'},
+      {'name':'MonOpDesk1', 'id':'D13',   'unit':'205'},
+      {'name':'MonOpDesk2', 'id':'D14',   'unit':'207'},
+      {'name':'MonServer1',   'id':'D15',   'unit':'209'},
+      {'name':'MonServer2',   'id':'D16',   'unit':'211'},
+      {'name':'MonOffice1',   'id':'D17',   'unit':'213'},
+      {'name':'MonOffice2',   'id':'D18',   'unit':'215'},
+    ];
+
+    var element = document.getElementById("mysourcetable");
+    var headerrow = document.createElement("tr");
+    
+    var headerid = document.createElement("th");
+    var id = document.createElement("p");
+    id.innerHTML = "ID";
+    headerid.appendChild(id);
+    headerrow.appendChild(headerid);
+    
+    var headerunit = document.createElement("th");
+    var unit = document.createElement("p");
+    unit.innerHTML = "Unit";
+    headerunit.appendChild(unit);
+    headerrow.appendChild(headerunit);
+    
+    var headername = document.createElement("th");
+    var name = document.createElement("p");
+    name.innerHTML = "Name";
+    headername.appendChild(name);
+    headerrow.appendChild(headername);
+    
+    var headerres = document.createElement("th");
+    var res = document.createElement("p");
+    res.innerHTML = "Resolution/Connected";
+    headerres.appendChild(res);
+    headerrow.appendChild(headerres);
+    
+    var headerdev = document.createElement("th");
+    var dev = document.createElement("p");
+    dev.innerHTML = "Device ID";
+    headerdev.appendChild(dev);
+    headerrow.appendChild(headerdev);
+    
+    var headerinfo = document.createElement("th");
+    var info = document.createElement("p");
+    info.innerHTML = "Training Info";
+    headerinfo.appendChild(info);
+    headerrow.appendChild(headerinfo);
+
+    element.appendChild(headerrow);
+    
+    var sourcedate = document.getElementById("mysourcedate");
+    var date = document.createElement("p");
+    
+    var jsonSourcesFile = (readTextFile('encoders.txt', date));
+    var jsonSourcesData = JSON.parse(jsonSourcesFile);
+    
+    sourcedate.appendChild(date);
+    
+    for (var sourceindex in sources) {
+      var source = sources[sourceindex];
+      
+      var row = document.createElement("tr");
+      
+      var source_id = document.createElement("th");
+      var textid = document.createElement("p");
+      textid.innerHTML = source.id;
+      source_id.appendChild(textid);
+      row.appendChild(source_id);
+      
+      var source_unit = document.createElement("th");
+      var textunit = document.createElement("p");
+      textunit.innerHTML = source.unit;
+      source_unit.appendChild(textunit);
+      row.appendChild(source_unit);
+      
+      var source_name = document.createElement("th");
+      var text = document.createElement("p");
+      text.innerHTML = source.name;
+      source_name.appendChild(text);
+      row.appendChild(source_name);
+      
+      var resolution = document.createElement("th");
+      var deviceid = document.createElement("th");
+      var traininginfo = document.createElement("th");
+      
+      var device = jsonSourcesData.Sources.find(function(e) {
+        return e.id == source.id
+      })
+      
+      if(device){
+        var resolution = document.createElement("th");
+        var res = document.createElement("p");
+        if (device.config.connected) resolution.style.backgroundColor = '#00ff00';
+        else if (!device.config.connected) resolution.style.backgroundColor = '#FF0000';
+        res.innerHTML = device.config.resolution;
+        resolution.appendChild(res);
+        row.appendChild(resolution);
+        
+        var deviceid = document.createElement("th");
+        var did = document.createElement("p");
+        did.innerHTML = device.deviceId;
+        deviceid.appendChild(did);
+        row.appendChild(deviceid);
+      
+        var traininginfo = document.createElement("th");
+        var tinfo = document.createElement("p");
+        tinfo.innerHTML = device.config.traininginfo;
+        traininginfo.appendChild(tinfo);
+        row.appendChild(traininginfo);
+      }
+      else{
+        var nothfoundth = document.createElement("th");
+        var notfoundp = document.createElement("p");
+        notfoundp.innerHTML = "Not Found in List";
+        nothfoundth.appendChild(notfoundp);
+        nothfoundth.colspan = 3;
+        row.appendChild(nothfoundth);
+      }
+      
+      element.appendChild(row);
+    }
+    
+    var element = document.getElementById("mydestinationtable");
+    var headerrow = document.createElement("tr");
+    
+    var headerid = document.createElement("th");
+    var id = document.createElement("p");
+    id.innerHTML = "ID";
+    headerid.appendChild(id);
+    headerrow.appendChild(headerid);
+    
+    var headername = document.createElement("th");
+    var name = document.createElement("p");
+    name.innerHTML = "Name";
+    headername.appendChild(name);
+    headerrow.appendChild(headername);
+    
+    var headerunit = document.createElement("th");
+    var unit = document.createElement("p");
+    unit.innerHTML = "Unit";
+    headerunit.appendChild(unit);
+    headerrow.appendChild(headerunit);
+    
+    var headerres = document.createElement("th");
+    var res = document.createElement("p");
+    res.innerHTML = "Resolution/Connected";
+    headerres.appendChild(res);
+    headerrow.appendChild(headerres);
+    
+    var headerdev = document.createElement("th");
+    var dev = document.createElement("p");
+    dev.innerHTML = "Device ID";
+    headerdev.appendChild(dev);
+    headerrow.appendChild(headerdev);
+    
+    var headergenlocked = document.createElement("th");
+    var genl = document.createElement("p");
+    genl.innerHTML = "State/Genlocked";
+    headergenlocked.appendChild(genl);
+    headerrow.appendChild(headergenlocked);
+    
+    var headeredid = document.createElement("th");
+    var edid = document.createElement("p");
+    edid.innerHTML = "Preferred EDID";
+    headeredid.appendChild(edid);
+    headerrow.appendChild(headeredid);
+    
+    var headerdisplay = document.createElement("th");
+    var display = document.createElement("p");
+    display.innerHTML = "Display Model";
+    headerdisplay.appendChild(display);
+    headerrow.appendChild(headerdisplay);
+    
+    var headereglsource = document.createElement("th");
+    var glsource = document.createElement("p");
+    glsource.innerHTML = "Genlock Source";
+    headereglsource.appendChild(glsource);
+    headerrow.appendChild(headereglsource);
+    
+    var headerinfo = document.createElement("th");
+    var info = document.createElement("p");
+    info.innerHTML = "Training Info";
+    headerinfo.appendChild(info);
+    headerrow.appendChild(headerinfo);
+
+    element.appendChild(headerrow);
+    
+    var destinationdate = document.getElementById("mydestinationdate");
+    var date = document.createElement("p");
+    
+    var jsonDestinationFile = (readTextFile('decoders.txt', date));
+    var jsonDestinationData = JSON.parse(jsonDestinationFile);
+    
+    destinationdate.appendChild(date);
+    
+    for (var destinationindex in destinations) {
+      var destination = destinations[destinationindex];
+      
+      var row = document.createElement("tr");
+      
+      var destination_id = document.createElement("th");
+      var textid = document.createElement("p");
+      textid.innerHTML = destination.id;
+      destination_id.appendChild(textid);
+      row.appendChild(destination_id);
+      
+      var destination_unit = document.createElement("th");
+      var textunit = document.createElement("p");
+      textunit.innerHTML = destination.unit;
+      destination_unit.appendChild(textunit);
+      row.appendChild(destination_unit);
+      
+      var destination_name = document.createElement("th");
+      var text = document.createElement("p");
+      text.innerHTML = destination.name;
+      destination_name.appendChild(text);
+      row.appendChild(destination_name);
+      
+      var device = jsonDestinationData.Destinations.find(function(e) {
+        return e.id == destination.id
+      })
+      
+      if(device){
+        var resolution = document.createElement("th");
+        var res = document.createElement("p");
+        if (device.config.connected) resolution.style.backgroundColor = '#00ff00';
+        else if (!device.config.connected) resolution.style.backgroundColor = '#FF0000';
+        res.innerHTML = device.config.resolution;
+        resolution.appendChild(res);
+        row.appendChild(resolution);
+        
+        var deviceid = document.createElement("th");
+        var did = document.createElement("p");
+        did.innerHTML = device.deviceId;
+        deviceid.appendChild(did);
+        row.appendChild(deviceid);
+        
+        var genlocked = document.createElement("th");
+        var gl = document.createElement("p");
+        if (device.config.genlocked) gl.style.backgroundColor = '#00ff00';
+        else if (!device.config.genlocked) gl.style.backgroundColor = '#FF0000';
+        gl.innerHTML = device.config.state;
+        genlocked.appendChild(gl);
+        row.appendChild(genlocked);
+        
+        var deviceedid = document.createElement("th");
+        var edid = document.createElement("p");
+        edid.innerHTML = device.config['Edid preferred Timing'];
+        deviceedid.appendChild(edid);
+        row.appendChild(deviceedid);
+        
+        var devicedisplay = document.createElement("th");
+        var displaymodel = document.createElement("p");
+        displaymodel.innerHTML = device.config.display[0].model;
+        devicedisplay.appendChild(displaymodel);
+        row.appendChild(devicedisplay);
+        
+        var deviceglsource= document.createElement("th");
+        var genlocksource = document.createElement("p");
+        genlocksource.innerHTML = device.config['genlock source'];
+        deviceglsource.appendChild(genlocksource);
+        row.appendChild(deviceglsource);
+      
+        var traininginfo = document.createElement("th");
+        var tinfo = document.createElement("p");
+        tinfo.innerHTML = device.config.traininginfo;
+        traininginfo.appendChild(tinfo);
+        row.appendChild(traininginfo);
+      }
+      else{
+        var nothfoundth = document.createElement("th");
+        var notfoundp = document.createElement("p");
+        notfoundp.innerHTML = "Not Found in List";
+        nothfoundth.appendChild(notfoundp);
+        nothfoundth.colspan = 7;
+        row.appendChild(nothfoundth);
+      }
+      
+      element.appendChild(row);
+    }
+  }
+  
+</script>
+
+<body onLoad="createTables()">
+  <h1>DisplayPort Status for ITN ENA-340 Decoders</h1>
+  <h2 id="mydestinationdate"></h2>
+  <table id="mydestinationtable">
+  </table>
+  <h1>DisplayPort Status for ITN ENA-340 Encoders</h1>
+  <h2 id="mysourcedate"></h2>
+  <table id="mysourcetable">
+  </table>
+</body>
+</html>
