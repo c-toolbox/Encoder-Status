@@ -28,122 +28,56 @@
       content: rawtext,
       date: rawFile.getResponseHeader('Last-Modified')
     }
-
-    // if (dateelement) {
-    //   dateelement.innerHTML = rawFile.getResponseHeader('Last-Modified');
-    // }
-    // return rawtext;
   }
 
-  function createTables() {
+  function createEntry(value, className) {
+    var td = document.createElement("td");
+    td.className = className;
+    var p = document.createElement("p");
+    p.innerHTML = value;
+    td.appendChild(p);
+    return td;
+  }
+
+  function createEncoderTable(data) {
     const sources = JSON.parse(readTextFile('encoders.json').content);
-    const destinations = JSON.parse(readTextFile('decoders.json').content);
 
-    var element = document.getElementById("mysourcetable");
-    var headerrow = document.createElement("tr");
-    
-    var headerid = document.createElement("th");
-    var id = document.createElement("p");
-    id.innerHTML = "ID";
-    headerid.appendChild(id);
-    headerrow.appendChild(headerid);
-    
-    var headerunit = document.createElement("th");
-    var unit = document.createElement("p");
-    unit.innerHTML = "Unit";
-    headerunit.appendChild(unit);
-    headerrow.appendChild(headerunit);
-    
-    var headername = document.createElement("th");
-    var name = document.createElement("p");
-    name.innerHTML = "Name";
-    headername.appendChild(name);
-    headerrow.appendChild(headername);
-    
-    var headerres = document.createElement("th");
-    var res = document.createElement("p");
-    res.innerHTML = "Resolution/Connected";
-    headerres.appendChild(res);
-    headerrow.appendChild(headerres);
-    
-    var headerdev = document.createElement("th");
-    var dev = document.createElement("p");
-    dev.innerHTML = "Device ID";
-    headerdev.appendChild(dev);
-    headerrow.appendChild(headerdev);
-    
-    var headerinfo = document.createElement("th");
-    var info = document.createElement("p");
-    info.innerHTML = "Training Info";
-    headerinfo.appendChild(info);
-    headerrow.appendChild(headerinfo);
+    sources.forEach(source => {
+      const row = document.createElement("tr");
 
-    element.appendChild(headerrow);
-    
-    var sourcedate = document.getElementById("mysourcedate");
-    var date = document.createElement("p");
+      row.appendChild(createEntry(source.id));
+      row.appendChild(createEntry(source.unit));
+      row.appendChild(createEntry(source.name));
 
-    const encoderContent = readTextFile('encoders.txt');
-    const jsonSourcesData = JSON.parse(encoderContent.content);
-    date.innerHTML = encoderContent.date;
+      const device = data.Sources.find(e => e.id == source.id);
 
-    
-    sourcedate.appendChild(date);
-    
-    for (var sourceindex in sources) {
-      var source = sources[sourceindex];
-      
-      var row = document.createElement("tr");
-      
-      var source_id = document.createElement("th");
-      var textid = document.createElement("p");
-      textid.innerHTML = source.id;
-      source_id.appendChild(textid);
-      row.appendChild(source_id);
-      
-      var source_unit = document.createElement("th");
-      var textunit = document.createElement("p");
-      textunit.innerHTML = source.unit;
-      source_unit.appendChild(textunit);
-      row.appendChild(source_unit);
-      
-      var source_name = document.createElement("th");
-      var text = document.createElement("p");
-      text.innerHTML = source.name;
-      source_name.appendChild(text);
-      row.appendChild(source_name);
-      
-      var resolution = document.createElement("th");
-      var deviceid = document.createElement("th");
-      var traininginfo = document.createElement("th");
-      
-      var device = jsonSourcesData.Sources.find(function(e) {
-        return e.id == source.id
-      })
-      
-      if(device){
-        var resolution = document.createElement("th");
+      if (device) {
+        var resolution = document.createElement("td");
         var res = document.createElement("p");
-        if (device.config.connected) resolution.style.backgroundColor = '#00ff00';
-        else if (!device.config.connected) resolution.style.backgroundColor = '#FF0000';
+        if (device.config.connected) {
+          resolution.style.backgroundColor = '#00ff00';
+        }
+        else if (!device.config.connected) {
+          resolution.style.backgroundColor = '#FF0000';
+        }
         res.innerHTML = device.config.resolution;
         resolution.appendChild(res);
         row.appendChild(resolution);
         
-        var deviceid = document.createElement("th");
+        var deviceid = document.createElement("td");
         var did = document.createElement("p");
         did.innerHTML = device.deviceId;
         deviceid.appendChild(did);
         row.appendChild(deviceid);
       
-        var traininginfo = document.createElement("th");
+        var traininginfo = document.createElement("td");
         var tinfo = document.createElement("p");
         tinfo.innerHTML = device.config.traininginfo;
         traininginfo.appendChild(tinfo);
         row.appendChild(traininginfo);
       }
       else{
-        var nothfoundth = document.createElement("th");
+        var nothfoundth = document.createElement("td");
         var notfoundp = document.createElement("p");
         notfoundp.innerHTML = "Not Found in List";
         nothfoundth.appendChild(notfoundp);
@@ -151,112 +85,23 @@
         row.appendChild(nothfoundth);
       }
       
-      element.appendChild(row);
-    }
-    
-    var element = document.getElementById("mydestinationtable");
-    var headerrow = document.createElement("tr");
-    
-    var headerid = document.createElement("th");
-    var id = document.createElement("p");
-    id.innerHTML = "ID";
-    headerid.appendChild(id);
-    headerrow.appendChild(headerid);
-    
-    var headername = document.createElement("th");
-    var name = document.createElement("p");
-    name.innerHTML = "Name";
-    headername.appendChild(name);
-    headerrow.appendChild(headername);
-    
-    var headerunit = document.createElement("th");
-    var unit = document.createElement("p");
-    unit.innerHTML = "Unit";
-    headerunit.appendChild(unit);
-    headerrow.appendChild(headerunit);
-    
-    var headerres = document.createElement("th");
-    var res = document.createElement("p");
-    res.innerHTML = "Resolution/Connected";
-    headerres.appendChild(res);
-    headerrow.appendChild(headerres);
-    
-    var headerdev = document.createElement("th");
-    var dev = document.createElement("p");
-    dev.innerHTML = "Device ID";
-    headerdev.appendChild(dev);
-    headerrow.appendChild(headerdev);
-    
-    var headergenlocked = document.createElement("th");
-    var genl = document.createElement("p");
-    genl.innerHTML = "State/Genlocked";
-    headergenlocked.appendChild(genl);
-    headerrow.appendChild(headergenlocked);
-    
-    var headeredid = document.createElement("th");
-    var edid = document.createElement("p");
-    edid.innerHTML = "Preferred EDID";
-    headeredid.appendChild(edid);
-    headerrow.appendChild(headeredid);
-    
-    var headerdisplay = document.createElement("th");
-    var display = document.createElement("p");
-    display.innerHTML = "Display Model";
-    headerdisplay.appendChild(display);
-    headerrow.appendChild(headerdisplay);
-    
-    var headereglsource = document.createElement("th");
-    var glsource = document.createElement("p");
-    glsource.innerHTML = "Genlock Source";
-    headereglsource.appendChild(glsource);
-    headerrow.appendChild(headereglsource);
-    
-    var headerinfo = document.createElement("th");
-    var info = document.createElement("p");
-    info.innerHTML = "Training Info";
-    headerinfo.appendChild(info);
-    headerrow.appendChild(headerinfo);
+      document.getElementById("sourcetable").appendChild(row);
+    });
+  }
 
-    element.appendChild(headerrow);
-    
-    var destinationdate = document.getElementById("mydestinationdate");
-    var date = document.createElement("p");
-    
-    const decodersContent = readTextFile('decoders.txt');
-    const jsonDestinationData = JSON.parse(decodersContent.content);
-    date.innerHTML = decodersContent.date;
-    
-    destinationdate.appendChild(date);
-    
-    for (var destinationindex in destinations) {
-      var destination = destinations[destinationindex];
-      
+  function createDecoderTable(data) {
+    const destinations = JSON.parse(readTextFile('decoders.json').content);
+    destinations.forEach(destination => {
       var row = document.createElement("tr");
       
-      var destination_id = document.createElement("th");
-      var textid = document.createElement("p");
-      textid.innerHTML = destination.id;
-      destination_id.appendChild(textid);
-      row.appendChild(destination_id);
+      row.appendChild(createEntry(destination.id));
+      row.appendChild(createEntry(destination.unit));
+      row.appendChild(createEntry(destination.name));
       
-      var destination_unit = document.createElement("th");
-      var textunit = document.createElement("p");
-      textunit.innerHTML = destination.unit;
-      destination_unit.appendChild(textunit);
-      row.appendChild(destination_unit);
-      
-      var destination_name = document.createElement("th");
-      var text = document.createElement("p");
-      text.innerHTML = destination.name;
-      destination_name.appendChild(text);
-      row.appendChild(destination_name);
-      
-      var device = jsonDestinationData.Destinations.find(function(e) {
-        return e.id == destination.id
-      })
+      var device = data.Destinations.find(e => e.id == destination.id);
       
       if(device){
-        var resolution = document.createElement("th");
+        var resolution = document.createElement("td");
         var res = document.createElement("p");
         if (device.config.connected) resolution.style.backgroundColor = '#00ff00';
         else if (!device.config.connected) resolution.style.backgroundColor = '#FF0000';
@@ -264,13 +109,13 @@
         resolution.appendChild(res);
         row.appendChild(resolution);
         
-        var deviceid = document.createElement("th");
+        var deviceid = document.createElement("td");
         var did = document.createElement("p");
         did.innerHTML = device.deviceId;
         deviceid.appendChild(did);
         row.appendChild(deviceid);
         
-        var genlocked = document.createElement("th");
+        var genlocked = document.createElement("td");
         var gl = document.createElement("p");
         if (device.config.genlocked) gl.style.backgroundColor = '#00ff00';
         else if (!device.config.genlocked) gl.style.backgroundColor = '#FF0000';
@@ -278,32 +123,32 @@
         genlocked.appendChild(gl);
         row.appendChild(genlocked);
         
-        var deviceedid = document.createElement("th");
+        var deviceedid = document.createElement("td");
         var edid = document.createElement("p");
         edid.innerHTML = device.config['Edid preferred Timing'];
         deviceedid.appendChild(edid);
         row.appendChild(deviceedid);
         
-        var devicedisplay = document.createElement("th");
+        var devicedisplay = document.createElement("td");
         var displaymodel = document.createElement("p");
         displaymodel.innerHTML = device.config.display[0].model;
         devicedisplay.appendChild(displaymodel);
         row.appendChild(devicedisplay);
         
-        var deviceglsource= document.createElement("th");
+        var deviceglsource= document.createElement("td");
         var genlocksource = document.createElement("p");
         genlocksource.innerHTML = device.config['genlock source'];
         deviceglsource.appendChild(genlocksource);
         row.appendChild(deviceglsource);
       
-        var traininginfo = document.createElement("th");
+        var traininginfo = document.createElement("td");
         var tinfo = document.createElement("p");
         tinfo.innerHTML = device.config.traininginfo;
         traininginfo.appendChild(tinfo);
         row.appendChild(traininginfo);
       }
       else{
-        var nothfoundth = document.createElement("th");
+        var nothfoundth = document.createElement("td");
         var notfoundp = document.createElement("p");
         notfoundp.innerHTML = "Not Found in List";
         nothfoundth.appendChild(notfoundp);
@@ -311,19 +156,59 @@
         row.appendChild(nothfoundth);
       }
       
-      element.appendChild(row);
-    }
+      document.getElementById("destinationtable").appendChild(row);
+    });
+  }
+
+  function updatePage() {
+    // Setting the encoders part of the page
+    const encodersText = readTextFile('encoders.txt');
+    const encodersData = JSON.parse(encodersText.content);
+    createEncoderTable(encodersData);
+
+    var encoderDate = document.createElement("p");
+    encoderDate.innerHTML = encodersData.date;
+    document.getElementById("sourcedate").appendChild(encoderDate);
+
+
+    // Settings the decoders part of the page
+    const decodersText = readTextFile('decoders.txt');
+    const decodersData = JSON.parse(decodersText.content);
+    var date = document.createElement("p");
+    date.innerHTML = decodersData.date;
+    document.getElementById("destinationdate").appendChild(date);
+
+    createDecoderTable(decodersData);
   }
 </script>
 
-<body onLoad="createTables()">
+<body onLoad="updatePage()">
   <h1>DisplayPort Status for ITN ENA-340 Decoders</h1>
-  <h2 id="mydestinationdate"></h2>
-  <table id="mydestinationtable">
+  <h2 id="destinationdate"></h2>
+  <table id="destinationtable">
+    <tr>
+      <th><p>ID</p></th>
+      <th><p>Name</p></th>
+      <th><p>Unit</p></th>
+      <th><p>Resolution/Connected</p></th>
+      <th><p>Device ID</p></th>
+      <th><p>State/Genlocked</p></th>
+      <th><p>Preferred EDID</p></th>
+      <th><p>Display Model</p></th>
+      <th><p>Genlock Source</p></th>
+      <th><p>Training Info</p></th>
+    </tr>
   </table>
   <h1>DisplayPort Status for ITN ENA-340 Encoders</h1>
-  <h2 id="mysourcedate"></h2>
-  <table id="mysourcetable">
+  <h2 id="sourcedate"></h2>
+  <table id="sourcetable">
+    <tr>
+      <th><p>ID</p></th>
+      <th><p>Unit</p></th>
+      <th><p>Name</p></th>
+      <th><p>Resolution/Connected</p></th>
+      <th><p>Device ID</p></th>
+      <th><p>Training Info</p></th>
   </table>
 </body>
 </html>
