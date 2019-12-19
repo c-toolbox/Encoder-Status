@@ -2,23 +2,32 @@
   <head>
     <style>
       :root {
-        --success-color: #33dd33;
-        --fail-color: #dd3333;
+        --fail-color: #a52020;
+        --genlock-color: #808020;
+        --training-color: #156565;
 
         --background-color: #222222;
         --background-color-heading: #333333;
-        --text-color: #dcdcdc;
-        --text-color-invert: #202020;
-      }
+        --text-color: #ececec;
 
-      body {
-        font-variant: small-caps;
         background-color: var(--background-color);
         color: var(--text-color);
       }
 
+      .disconnected {
+        background-color: var(--fail-color);
+      }
+
+      .notgenlocked {
+        background-color: var(--genlock-color);
+      }
+
+      .trainingfail {
+        background-color: var(--training-color);
+      }
+
       div.heading {
-        font-size:42px;
+        font-size: 48px;
         font-variant: small-caps;
       }
 
@@ -27,18 +36,27 @@
         font-variant: small-caps;
       }
 
+      div.legend {
+        border: 1px solid black;
+        position: fixed;
+        right: 25;
+        top: 25;
+        text-align: left;
+        font-size: 18px;
+      }
+
+      div.legend * {
+        padding: 5px 10px;
+      }
+
       table {
         width: 100%;
         font-size: 14px;
       }
-      
+
       th {
         font-size: 18px;
         font-variant: small-caps;
-      }
-
-      td {
-        border-bottom: 1px solid #999999;
       }
 
       tr.spacing {
@@ -46,14 +64,8 @@
         background-color: var(--background-color-heading);
       }
 
-      td.connected {
-        color: var(--text-color-invert);
-        background-color: var(--success-color);
-      }
-
-      td.disconnected {
-        color: var(--text-color-invert);
-        background-color: var(--fail-color);
+      td {
+        border-bottom: 1px solid #999999;
       }
     </style>
   <title>DisplayPort Status for ITN ENA-340 Encoders</title>
@@ -61,34 +73,29 @@
 
 <script type="text/javascript">
   function readTextFile(file) {
-    var rawtext;
+    var content;
     const f = new XMLHttpRequest();
     f.open("GET", file, false);
     f.onreadystatechange = function () {
-      if (f.readyState === 4) {
-        if (f.status === 200 || f.status == 0) {
-          rawtext = f.responseText;
-        }
+      if (f.readyState === 4 && (f.status === 200 || f.status == 0)) {
+        content = f.responseText;
       }
     }
     f.send(null);
     return {
-      content: rawtext,
+      content: content,
       date: f.getResponseHeader('Last-Modified')
     }
   }
 
-  function createEntry(value, isConnected) {
-    var td = document.createElement("td");
-    if (isConnected != null) {
-      td.className = isConnected ? "connected" : "disconnected";
-    }
+  function createEntry(value) {
+    var td = document.createElement('td');
     td.innerHTML = value;
     return td;
   }
 
   function createSpacing(text) {
-    const row = document.createElement("tr");
+    const row = document.createElement('tr');
     row.className = 'spacing';
     const td = document.createElement('td');
     td.colSpan = 10;
@@ -98,22 +105,33 @@
   }
 
   function createEncoderTable(data) {
-    function addEncoder(encoder, table) {
-      const row = document.createElement("tr");
+    function addEncoder(encoder, table, checkTraining) {
+      const row = document.createElement('tr');
       row.appendChild(createEntry(encoder.id));
       row.appendChild(createEntry(encoder.unit));
       row.appendChild(createEntry(encoder.name));
 
       const device = data.Sources.find(e => e.id == encoder.id);
       if (device) {
-        row.appendChild(createEntry(device.config.resolution, device.config.connected));
+        if (checkTraining) {
+          const TestString = 'Link trained; Bit per color component : 8; Current LaneCount: 4; Current LinkRate : 20 (HBR2);';
+          if (device.config.traininginfo.substring(0, TestString.length) !== TestString) {
+            row.className = 'trainingfail';
+          }
+        }
+
+        if (device.config.connected != null && !device.config.connected) {
+          row.className = 'disconnected';
+        }
+        row.appendChild(createEntry(device.config.resolution));
         row.appendChild(createEntry(device.deviceId));
         row.appendChild(createEntry(device.config.traininginfo));
       }
       else {
-        const td = document.createElement("td");
+        row.className = 'disconnected';
+        const td = document.createElement('td');
         td.colspan = 3;
-        td.innerHTML = "Not Found in List";
+        td.innerHTML = 'Not Found in List';
         row.appendChild(td);
       }
       table.appendChild(row);
@@ -137,9 +155,9 @@
     const alphas  = sources.filter(d => d.system === 'Alpha');
     sources = sources.filter(d => d.system !== 'Alpha');
 
-    const table = document.getElementById("sourcetable");
+    const table = document.getElementById('sourcetable');
     table.appendChild(createSpacing('Bravo'));
-    bravos.forEach(d => addEncoder(d, table));
+    bravos.forEach(d => addEncoder(d, table, true));
     table.appendChild(createSpacing('Watchout'));
     watchouts.forEach(d => addEncoder(d, table));
     table.appendChild(createSpacing('Sushi & Fishy'));
@@ -154,7 +172,7 @@
 
   function createDecoderTable(data) {
     function addDecoder(decoder, table) {
-      const row = document.createElement("tr");
+      const row = document.createElement('tr');
 
       row.appendChild(createEntry(decoder.id));
       row.appendChild(createEntry(decoder.unit));
@@ -162,7 +180,13 @@
 
       const device = data.Destinations.find(e => e.id == decoder.id);
       if (device) {
-        row.appendChild(createEntry(device.config.resolution, device.config.connected));
+        if (device.config.genlocked != null && !device.config.genlocked) {
+          row.className = 'notgenlocked';
+        }
+        if (device.config.connected != null && !device.config.connected) {
+          row.className = 'disconnected';
+        }
+        row.appendChild(createEntry(device.config.resolution));
         row.appendChild(createEntry(device.deviceId));
         row.appendChild(createEntry(device.config.state, device.config.genlocked));
         row.appendChild(createEntry(device.config['Edid preferred Timing']));
@@ -171,12 +195,12 @@
         row.appendChild(createEntry(device.config.traininginfo));
       }
       else {
-        const td = document.createElement("td");
+        const td = document.createElement('td');
         td.colspan = 7;
-        td.innerHTML = "Not Found in List";
+        td.innerHTML = 'Not Found in List';
         row.appendChild(td);
       }
-      document.getElementById("destinationtable").appendChild(row);
+      document.getElementById('destinationtable').appendChild(row);
     }
 
     let destinations = JSON.parse(readTextFile('decoders.json').content);
@@ -196,7 +220,7 @@
     const offices  = destinations.filter(d => d.group === 'offices');
     destinations = destinations.filter(d => d.group !== 'offices');
 
-    const table = document.getElementById("destinationtable");
+    const table = document.getElementById('destinationtable');
     table.appendChild(createSpacing('Projectors'));
     projectors.forEach(d => addDecoder(d, table));
     table.appendChild(createSpacing('Booth Monitors'));
@@ -217,23 +241,28 @@
     const encodersData = JSON.parse(encodersText.content);
     createEncoderTable(encodersData);
 
-    var encoderDate = document.createElement("p");
+    var encoderDate = document.createElement('p');
     encoderDate.innerHTML = encodersText.date;
-    document.getElementById("sourcedate").appendChild(encoderDate);
+    document.getElementById('sourcedate').appendChild(encoderDate);
 
 
     // Settings the decoders part of the page
     const decodersText = readTextFile('decoders.txt');
     const decodersData = JSON.parse(decodersText.content);
-    var date = document.createElement("p");
+    var date = document.createElement('p');
     date.innerHTML = decodersText.date;
-    document.getElementById("destinationdate").appendChild(date);
+    document.getElementById('destinationdate').appendChild(date);
 
     createDecoderTable(decodersData);
   }
 </script>
 
 <body onLoad="updatePage()">
+  <div class="legend">
+    <div class="disconnected">Not connected</div>
+    <div class="notgenlocked">No genlock</div>
+    <div class="trainingfail">Training failure</div>
+  </div>
   <div class="heading">DisplayPort Status for ITN ENA-340 Decoders</div>
   <div class="date" id="destinationdate"></div>
   <table id="destinationtable">
