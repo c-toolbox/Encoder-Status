@@ -69,6 +69,7 @@
       }
     </style>
   <title>DisplayPort Status for ITN ENA-340 Encoders</title>
+  <meta http-equiv="refresh" content="60;url=/barco/"/>
 </head>
 
 <script type="text/javascript">
@@ -237,7 +238,7 @@
 
   function updatePage() {
     // Setting the encoders part of the page
-    const encodersText = readTextFile('encoders.txt');
+    const encodersText = readTextFile('.sources.txt');
     const encodersData = JSON.parse(encodersText.content);
     createEncoderTable(encodersData);
 
@@ -247,7 +248,7 @@
 
 
     // Settings the decoders part of the page
-    const decodersText = readTextFile('decoders.txt');
+    const decodersText = readTextFile('.destinations.txt');
     const decodersData = JSON.parse(decodersText.content);
     var date = document.createElement('p');
     date.innerHTML = decodersText.date;
