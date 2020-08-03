@@ -27,12 +27,12 @@
       }
 
       div.heading {
-        font-size: 48px;
+        font-size: 24px;
         font-variant: small-caps;
       }
 
       div.date {
-        font-size: 18px;
+        font-size: 14px;
         font-variant: small-caps;
       }
 
@@ -40,9 +40,9 @@
         border: 1px solid black;
         position: fixed;
         right: 25;
-        top: 25;
+        top: 15;
         text-align: left;
-        font-size: 18px;
+        font-size: 14px;
       }
 
       div.legend * {
@@ -55,7 +55,8 @@
       }
 
       th {
-        font-size: 18px;
+        font-size: 16px;
+		text-align: left;
         font-variant: small-caps;
       }
 
@@ -105,74 +106,110 @@
     return row;
   }
 
-  function createEncoderTable(data) {
-    function addEncoder(encoder, table, checkTraining) {
-      const row = document.createElement('tr');
-      row.appendChild(createEntry(encoder.id));
-      row.appendChild(createEntry(encoder.unit));
-      row.appendChild(createEntry(encoder.name));
+  function addEncoder(encoder, data, table, checkTraining) {
+    const row = document.createElement('tr');
+    row.appendChild(createEntry(encoder.id));
+    row.appendChild(createEntry(encoder.unit));
+    row.appendChild(createEntry(encoder.name));
 
-      const device = data.Sources.find(e => e.id == encoder.id);
-      if (device) {
-        if (checkTraining) {
-          const TestString = 'Link trained; Bit per color component : 8; Current LaneCount: 4; Current LinkRate : 20 (HBR2);';
-          if (device.config.traininginfo.substring(0, TestString.length) !== TestString) {
-            row.className = 'trainingfail';
-          }
+    const device = data.Sources.find(e => e.id == encoder.id);
+        const TestString = 'Link trained; Bit per color component : 8; Current LaneCount: 4; Current LinkRate : 20 (HBR2);';
+    if (device) {
+      if (checkTraining) {
+        if (device.config.traininginfo.substring(0, TestString.length) !== TestString) {
+          row.className = 'trainingfail';
         }
-
-        if (device.config.connected != null && !device.config.connected) {
-          row.className = 'disconnected';
-        }
-        row.appendChild(createEntry(device.config.resolution));
-        row.appendChild(createEntry(device.deviceId));
-        row.appendChild(createEntry(device.config.traininginfo));
       }
-      else {
+
+      if (device.config.connected != null && !device.config.connected) {
         row.className = 'disconnected';
+      }
+      row.appendChild(createEntry(device.config.resolution));
+      row.appendChild(createEntry(device.deviceId));
+          if(row.className == 'disconnected'){
+                row.appendChild(createEntry(device.config.traininginfo.substring(0, TestString.length+47)));
+          }
+          else{
+                row.appendChild(createEntry(device.config.traininginfo.substring(0, TestString.length)));
+          }
+    }
+    else {
+                row.className = 'disconnected';
         const td = document.createElement('td');
         td.colspan = 3;
         td.innerHTML = 'Not Found in List';
         row.appendChild(td);
-      }
-      table.appendChild(row);
-    }
+     }
+         table.appendChild(row);
+  }
 
+  function createActiveClusterTable(data) {
     let sources = JSON.parse(readTextFile('encoders.json').content);
 
     // Bravo system
     const bravos = sources.filter(d => d.system === 'Bravo');
     sources = sources.filter(d => d.system !== 'Bravo');
 
-    // Watchout system
+    // Sushi/Fishy system
+    const sushis = sources.filter(d => d.system === 'Sushi');
+    sources = sources.filter(d => d.system !== 'Sushi');
+	
+	// Atlas system
+    const atlases = sources.filter(d => d.system === 'Atlas');
+    sources = sources.filter(d => d.system !== 'Atlas');
+	
+	// Watchout system
     const watchouts = sources.filter(d => d.system === 'Watchout');
     sources = sources.filter(d => d.system !== 'Watchout');
 
-    // Fishy system
-    const fishys = sources.filter(d => d.system === 'Fishy');
-    sources = sources.filter(d => d.system !== 'Fishy');
+    // Barco stuff
+    const barcos  = sources.filter(d => d.system === 'Barco');
+    sources = sources.filter(d => d.system !== 'Barco');
 
-    // Alpha system
-    const alphas  = sources.filter(d => d.system === 'Alpha');
-    sources = sources.filter(d => d.system !== 'Alpha');
+    const table = document.getElementById('clustertable');
+    table.appendChild(createSpacing('Bravo'));
+    bravos.forEach(d => addEncoder(d, data, table, true));
+    table.appendChild(createSpacing('Sushi & Fishy'));
+    sushis.forEach(d => addEncoder(d, data, table));
+	table.appendChild(createSpacing('Atlas'));
+    atlases.forEach(d => addEncoder(d, data, table, true));
+  }
+
+  function createOtherEncoderTable(data) {
+    let sources = JSON.parse(readTextFile('encoders.json').content);
+
+    // Bravo system
+    const bravos = sources.filter(d => d.system === 'Bravo');
+    sources = sources.filter(d => d.system !== 'Bravo');
+
+    // Sushi/Fishy system
+    const sushis = sources.filter(d => d.system === 'Sushi');
+    sources = sources.filter(d => d.system !== 'Sushi');
+	
+	// Atlas system
+    const atlases = sources.filter(d => d.system === 'Atlas');
+    sources = sources.filter(d => d.system !== 'Atlas');
+	
+	// Watchout system
+    const watchouts = sources.filter(d => d.system === 'Watchout');
+    sources = sources.filter(d => d.system !== 'Watchout');
+
+    // Barco stuff
+    const barcos  = sources.filter(d => d.system === 'Barco');
+    sources = sources.filter(d => d.system !== 'Barco');
 
     const table = document.getElementById('sourcetable');
-    table.appendChild(createSpacing('Bravo'));
-    bravos.forEach(d => addEncoder(d, table, true));
-    table.appendChild(createSpacing('Watchout'));
-    watchouts.forEach(d => addEncoder(d, table));
-    table.appendChild(createSpacing('Sushi & Fishy'));
-    fishys.forEach(d => addEncoder(d, table));
-    table.appendChild(createSpacing('Alpha'));
-    alphas.forEach(d => addEncoder(d, table));
+        table.appendChild(createSpacing('Watchout'));
+    watchouts.forEach(d => addEncoder(d, data, table));
+    table.appendChild(createSpacing('Barco'));
+    barcos.forEach(d => addEncoder(d, data, table));
     if (sources.length > 0) {
       table.appendChild(createSpacing('Other'));
-      sources.forEach(d => addEncoder(d, table));
+      sources.forEach(d => addEncoder(d, data, table));
     }
   }
 
-  function createDecoderTable(data) {
-    function addDecoder(decoder, table) {
+  function addDecoder(decoder, data, table) {
       const row = document.createElement('tr');
 
       row.appendChild(createEntry(decoder.id));
@@ -201,14 +238,22 @@
         td.innerHTML = 'Not Found in List';
         row.appendChild(td);
       }
-      document.getElementById('destinationtable').appendChild(row);
+      table.appendChild(row);
     }
 
+  function createProjectorTable(data) {
     let destinations = JSON.parse(readTextFile('decoders.json').content);
     // Projectors
     const projectors = destinations.filter(d => d.group === 'projector');
     destinations = destinations.filter(d => d.group !== 'projector');
 
+    const table = document.getElementById('projectortable');
+    table.appendChild(createSpacing(''));
+    projectors.forEach(d => addDecoder(d, data, table));
+  }
+
+  function createMonitorTable(data) {
+    let destinations = JSON.parse(readTextFile('decoders.json').content);
     // Booth monitors
     const booths = destinations.filter(d => d.group === 'booth');
     destinations = destinations.filter(d => d.group !== 'booth');
@@ -221,40 +266,43 @@
     const offices  = destinations.filter(d => d.group === 'offices');
     destinations = destinations.filter(d => d.group !== 'offices');
 
-    const table = document.getElementById('destinationtable');
-    table.appendChild(createSpacing('Projectors'));
-    projectors.forEach(d => addDecoder(d, table));
+    const table = document.getElementById('monitortable');
     table.appendChild(createSpacing('Booth Monitors'));
-    booths.forEach(d => addDecoder(d, table));
+    booths.forEach(d => addDecoder(d, data, table));
     table.appendChild(createSpacing('Serverroom Monitors'));
-    serverroom.forEach(d => addDecoder(d, table));
+    serverroom.forEach(d => addDecoder(d, data, table));
     table.appendChild(createSpacing('Office Monitors'));
-    offices.forEach(d => addDecoder(d, table));
-    if (destinations.length > 0) {
-      table.appendChild(createSpacing('Other'));
-      destinations.forEach(d => addDecoder(d, table));
-    }
+    offices.forEach(d => addDecoder(d, data, table));
   }
 
   function updatePage() {
-    // Setting the encoders part of the page
+    // Setting the active cluster part of the page
     const encodersText = readTextFile('.sources.txt');
     const encodersData = JSON.parse(encodersText.content);
-    createEncoderTable(encodersData);
+    createActiveClusterTable(encodersData);
+    var clusterDate = document.createElement('p');
+    clusterDate.innerHTML = encodersText.date;
+    document.getElementById('clusterdate').appendChild(clusterDate);
 
+        // Setting the other encoders part of the page
+    createOtherEncoderTable(encodersData);
     var encoderDate = document.createElement('p');
     encoderDate.innerHTML = encodersText.date;
     document.getElementById('sourcedate').appendChild(encoderDate);
 
-
-    // Settings the decoders part of the page
+    // Settings the projector decoders part of the page
     const decodersText = readTextFile('.destinations.txt');
     const decodersData = JSON.parse(decodersText.content);
-    var date = document.createElement('p');
-    date.innerHTML = decodersText.date;
-    document.getElementById('destinationdate').appendChild(date);
+        createProjectorTable(decodersData);
+    var projectorDate = document.createElement('p');
+    projectorDate.innerHTML = decodersText.date;
+    document.getElementById('projectordate').appendChild(projectorDate);
 
-    createDecoderTable(decodersData);
+        // Settings the monitor decoders part of the page
+        createMonitorTable(decodersData);
+    var monitorDate = document.createElement('p');
+    monitorDate.innerHTML = decodersText.date;
+    document.getElementById('monitordate').appendChild(monitorDate);
   }
 </script>
 
@@ -264,9 +312,9 @@
     <div class="notgenlocked">No genlock</div>
     <div class="trainingfail">Training failure</div>
   </div>
-  <div class="heading">DisplayPort Status for ITN ENA-340 Decoders</div>
-  <div class="date" id="destinationdate"></div>
-  <table id="destinationtable">
+  <div class="heading">Projector Decoders Status</div>
+  <div class="date" id="projectordate"></div>
+  <table id="projectortable">
     <tr>
       <th><p>ID</p></th>
       <th><p>Name</p></th>
@@ -281,7 +329,36 @@
     </tr>
   </table>
   <br />
-  <div class="heading">DisplayPort Status for ITN ENA-340 Encoders</div>
+  <div class="heading">Active Cluster Encoders Status</div>
+  <div class="date" id="clusterdate"></div>
+  <table id="clustertable">
+    <tr>
+      <th><p>ID</p></th>
+      <th><p>Unit</p></th>
+      <th><p>Name</p></th>
+      <th><p>Resolution/Connected</p></th>
+      <th><p>Device ID</p></th>
+      <th><p>Training Info</p></th>
+  </table>
+  <br />
+  <div class="heading">Monitor Decoders Status</div>
+  <div class="date" id="monitordate"></div>
+  <table id="monitortable">
+    <tr>
+      <th><p>ID</p></th>
+      <th><p>Name</p></th>
+      <th><p>Unit</p></th>
+      <th><p>Resolution/Connected</p></th>
+      <th><p>Device ID</p></th>
+      <th><p>State/Genlocked</p></th>
+      <th><p>Preferred EDID</p></th>
+      <th><p>Display Model</p></th>
+      <th><p>Genlock Source</p></th>
+      <th><p>Training Info</p></th>
+    </tr>
+  </table>
+  <br />
+  <div class="heading">Other Encoders Status</div>
   <div class="date" id="sourcedate"></div>
   <table id="sourcetable">
     <tr>
