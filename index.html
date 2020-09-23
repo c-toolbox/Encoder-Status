@@ -56,7 +56,7 @@
 
       th {
         font-size: 16px;
-        text-align: left;
+                text-align: left;
         font-variant: small-caps;
       }
 
@@ -106,50 +106,41 @@
     return row;
   }
 
-  function addEncoder(encoder, data, table, checkTraining, checkRefreshRate) {
+  function addEncoder(encoder, data, table, checkTraining) {
     const row = document.createElement('tr');
     row.appendChild(createEntry(encoder.id));
     row.appendChild(createEntry(encoder.unit));
     row.appendChild(createEntry(encoder.name));
 
     const device = data.Sources.find(e => e.id == encoder.id);
-    const TestString = 'Link trained; Bit per color component : 8; Current LaneCount: 4; Current LinkRate : 20 (HBR2);';
+        const TestString = 'Link trained; Bit per color component : 8; Current LaneCount: 4; Current LinkRate : 20 (HBR2);';
     if (device) {
-      if (checkRefreshRate) {
-        // Extract the two last characters from the resolution as that is the refresh rate
-        // The atlas cluster has a refresh rate of 59 only iff the genlock was successful,
-        // otherwise it will be a framerate of 60
-        const refreshRate = device.config.resolution.substring(
-          device.config.resolution.length - 2,
-          device.config.resolution.length
-        );
-        if (refreshRate === '60') {
-          row.className = 'notgenlocked';
+      if (checkTraining) {
+        if (device.config.traininginfo.substring(0, TestString.length) !== TestString) {
+          row.className = 'trainingfail';
         }
       }
-      if (checkTraining && (device.config.traininginfo.substring(0, TestString.length) !== TestString)) {
-        row.className = 'trainingfail';
-      }
+
       if (device.config.connected != null && !device.config.connected) {
         row.className = 'disconnected';
       }
       row.appendChild(createEntry(device.config.resolution));
       row.appendChild(createEntry(device.deviceId));
-      if (row.className == 'disconnected') {
-        row.appendChild(createEntry(device.config.traininginfo.substring(0, TestString.length + 47)));
-      }
-      else {
-        row.appendChild(createEntry(device.config.traininginfo.substring(0, TestString.length)));
-      }
+          if(row.className == 'disconnected'){
+                row.appendChild(createEntry(device.config.traininginfo.substring(0, TestString.length+47)));
+          }
+          else{
+                row.appendChild(createEntry(device.config.traininginfo.substring(0, TestString.length)));
+          }
     }
     else {
-      row.className = 'disconnected';
-      const td = document.createElement('td');
-      td.colspan = 3;
-      td.innerHTML = 'Not Found in List';
-      row.appendChild(td);
-    }
-    table.appendChild(row);
+                row.className = 'disconnected';
+        const td = document.createElement('td');
+        td.colspan = 3;
+        td.innerHTML = 'Not Found in List';
+        row.appendChild(td);
+     }
+         table.appendChild(row);
   }
 
   function createActiveClusterTable(data) {
@@ -162,12 +153,12 @@
     // Sushi/Fishy system
     const sushis = sources.filter(d => d.system === 'Sushi');
     sources = sources.filter(d => d.system !== 'Sushi');
-    
-    // Atlas system
+
+        // Atlas system
     const atlases = sources.filter(d => d.system === 'Atlas');
     sources = sources.filter(d => d.system !== 'Atlas');
-    
-    // Watchout system
+
+        // Watchout system
     const watchouts = sources.filter(d => d.system === 'Watchout');
     sources = sources.filter(d => d.system !== 'Watchout');
 
@@ -178,16 +169,10 @@
     const table = document.getElementById('clustertable');
     table.appendChild(createSpacing('Bravo'));
     bravos.forEach(d => addEncoder(d, data, table, true));
-
     table.appendChild(createSpacing('Sushi & Fishy'));
     sushis.forEach(d => addEncoder(d, data, table));
-
-    table.appendChild(createSpacing('Atlas'));
-    // We only want the refresh rate check for the non-master nodes as the master node
-    // would always show up as not gen-locked and it would draw attention
-    addEncoder(atlases[0], data, table, true, false);
-    atlases.shift();
-    atlases.forEach(d => addEncoder(d, data, table, true, true));
+        table.appendChild(createSpacing('Atlas'));
+    atlases.forEach(d => addEncoder(d, data, table, true));
   }
 
   function createOtherEncoderTable(data) {
@@ -200,12 +185,12 @@
     // Sushi/Fishy system
     const sushis = sources.filter(d => d.system === 'Sushi');
     sources = sources.filter(d => d.system !== 'Sushi');
-    
-    // Atlas system
+
+        // Atlas system
     const atlases = sources.filter(d => d.system === 'Atlas');
     sources = sources.filter(d => d.system !== 'Atlas');
-    
-    // Watchout system
+
+        // Watchout system
     const watchouts = sources.filter(d => d.system === 'Watchout');
     sources = sources.filter(d => d.system !== 'Watchout');
 
@@ -214,7 +199,7 @@
     sources = sources.filter(d => d.system !== 'Barco');
 
     const table = document.getElementById('sourcetable');
-    table.appendChild(createSpacing('Watchout'));
+        table.appendChild(createSpacing('Watchout'));
     watchouts.forEach(d => addEncoder(d, data, table));
     table.appendChild(createSpacing('Barco'));
     barcos.forEach(d => addEncoder(d, data, table));
@@ -299,7 +284,7 @@
     clusterDate.innerHTML = encodersText.date;
     document.getElementById('clusterdate').appendChild(clusterDate);
 
-    // Setting the other encoders part of the page
+        // Setting the other encoders part of the page
     createOtherEncoderTable(encodersData);
     var encoderDate = document.createElement('p');
     encoderDate.innerHTML = encodersText.date;
@@ -308,13 +293,13 @@
     // Settings the projector decoders part of the page
     const decodersText = readTextFile('.destinations.txt');
     const decodersData = JSON.parse(decodersText.content);
-    createProjectorTable(decodersData);
+        createProjectorTable(decodersData);
     var projectorDate = document.createElement('p');
     projectorDate.innerHTML = decodersText.date;
     document.getElementById('projectordate').appendChild(projectorDate);
 
-    // Settings the monitor decoders part of the page
-    createMonitorTable(decodersData);
+        // Settings the monitor decoders part of the page
+        createMonitorTable(decodersData);
     var monitorDate = document.createElement('p');
     monitorDate.innerHTML = decodersText.date;
     document.getElementById('monitordate').appendChild(monitorDate);
