@@ -13,6 +13,10 @@
         background-color: var(--background-color);
         color: var(--text-color);
       }
+	  
+	  a {
+		color: white;
+	  }
 
       .disconnected {
         background-color: var(--fail-color);
@@ -95,6 +99,12 @@
     td.innerHTML = value;
     return td;
   }
+  
+  function createEntryLink(value) {
+    var td = document.createElement('td');
+    td.innerHTML = '<a href="//172.19.7.' + value + '">' + value + '</a>';;
+    return td;
+  }
 
   function createSpacing(text) {
     const row = document.createElement('tr');
@@ -109,7 +119,7 @@
   function addEncoder(encoder, data, table, checkTraining) {
     const row = document.createElement('tr');
     row.appendChild(createEntry(encoder.id));
-    row.appendChild(createEntry(encoder.unit));
+    row.appendChild(createEntryLink(encoder.unit));
     row.appendChild(createEntry(encoder.name));
 
     const device = data.Sources.find(e => e.id == encoder.id);
@@ -158,9 +168,9 @@
     const atlases = sources.filter(d => d.system === 'Atlas');
     sources = sources.filter(d => d.system !== 'Atlas');
 
-        // Watchout system
-    const watchouts = sources.filter(d => d.system === 'Watchout');
-    sources = sources.filter(d => d.system !== 'Watchout');
+        // vMix system
+    const vmix = sources.filter(d => d.system === 'vMix');
+    sources = sources.filter(d => d.system !== 'vMix');
 
     // Barco stuff
     const barcos  = sources.filter(d => d.system === 'Barco');
@@ -190,17 +200,17 @@
     const atlases = sources.filter(d => d.system === 'Atlas');
     sources = sources.filter(d => d.system !== 'Atlas');
 
-        // Watchout system
-    const watchouts = sources.filter(d => d.system === 'Watchout');
-    sources = sources.filter(d => d.system !== 'Watchout');
+        // vMix system
+    const vmix = sources.filter(d => d.system === 'vMix');
+    sources = sources.filter(d => d.system !== 'vMix');
 
     // Barco stuff
     const barcos  = sources.filter(d => d.system === 'Barco');
     sources = sources.filter(d => d.system !== 'Barco');
 
     const table = document.getElementById('sourcetable');
-        table.appendChild(createSpacing('Watchout'));
-    watchouts.forEach(d => addEncoder(d, data, table));
+        table.appendChild(createSpacing('vMix'));
+    vmix.forEach(d => addEncoder(d, data, table));
     table.appendChild(createSpacing('Barco'));
     barcos.forEach(d => addEncoder(d, data, table));
     if (sources.length > 0) {
@@ -213,7 +223,7 @@
       const row = document.createElement('tr');
 
       row.appendChild(createEntry(decoder.id));
-      row.appendChild(createEntry(decoder.unit));
+      row.appendChild(createEntryLink(decoder.unit));
       row.appendChild(createEntry(decoder.name));
 
       const device = data.Destinations.find(e => e.id == decoder.id);
