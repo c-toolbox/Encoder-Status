@@ -164,11 +164,15 @@
     const sushis = sources.filter(d => d.system === 'Sushi');
     sources = sources.filter(d => d.system !== 'Sushi');
 
-        // Atlas system
+    // Atlas system
     const atlases = sources.filter(d => d.system === 'Atlas');
     sources = sources.filter(d => d.system !== 'Atlas');
 
-        // vMix system
+    // Draco system
+    const dracos = sources.filter(d => d.system === 'Draco');
+    sources = sources.filter(d => d.system !== 'Draco');
+
+    // vMix system
     const vmix = sources.filter(d => d.system === 'vMix');
     sources = sources.filter(d => d.system !== 'vMix');
 
@@ -181,8 +185,10 @@
     bravos.forEach(d => addEncoder(d, data, table, true));
     table.appendChild(createSpacing('Sushi & Fishy'));
     sushis.forEach(d => addEncoder(d, data, table));
-        table.appendChild(createSpacing('Atlas'));
+    table.appendChild(createSpacing('Atlas'));
     atlases.forEach(d => addEncoder(d, data, table, true));
+    table.appendChild(createSpacing('Draco'));
+    dracos.forEach(d => addEncoder(d, data, table, true));
   }
 
   function createOtherEncoderTable(data) {
@@ -196,9 +202,13 @@
     const sushis = sources.filter(d => d.system === 'Sushi');
     sources = sources.filter(d => d.system !== 'Sushi');
 
-        // Atlas system
+    // Atlas system
     const atlases = sources.filter(d => d.system === 'Atlas');
     sources = sources.filter(d => d.system !== 'Atlas');
+
+    // Draco system
+    const dracos = sources.filter(d => d.system === 'Draco');
+    sources = sources.filter(d => d.system !== 'Draco');
 
         // vMix system
     const vmix = sources.filter(d => d.system === 'vMix');
